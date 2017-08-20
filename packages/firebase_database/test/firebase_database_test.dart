@@ -29,11 +29,9 @@ void main() {
           case 'FirebaseDatabase#setPersistenceCacheSizeBytes':
             return true;
           case 'DatabaseReference#runTransaction':
-            return <String, dynamic> {
+            return <String, dynamic>{
               'key': 'notRealKey',
-              'value': <String, dynamic> {
-                'fakeKey': 'fakeValue'
-              }
+              'value': <String, dynamic>{'fakeKey': 'fakeValue'}
             };
           default:
             return null;
@@ -151,35 +149,26 @@ void main() {
       });
 
       test('runTransaction', () async {
-        await database.reference().child('foo')
+        await database
+            .reference()
+            .child('foo')
             .runTransaction(new MockTransactionHandler());
         expect(
-          log,
-          equals(<MethodCall>[
-            new MethodCall(
-              'DatabaseReference#runTransaction',
-              <String, dynamic>{'path': 'foo', 'transactionKey': 0}
-            ),
-            new MethodCall(
-              'DatabaseReference#finishDoTransaction',
-              <String, dynamic>{
-                'updatedDataSnapshot': <String, dynamic> {
+            log,
+            equals(<MethodCall>[
+              new MethodCall('DatabaseReference#runTransaction',
+                  <String, dynamic>{'path': 'foo', 'transactionKey': 0}),
+              new MethodCall(
+                  'DatabaseReference#finishDoTransaction', <String, dynamic>{
+                'updatedDataSnapshot': <String, dynamic>{
                   'fakeKey': 'fakeValue'
                 },
                 'transactionKey': 0
-              }
-            )
-          ])
-        );
-        expect(
-          FirebaseDatabase.transactions.length,
-          equals(1)
-        );
+              })
+            ]));
+        expect(FirebaseDatabase.transactions.length, equals(1));
         FirebaseDatabase.transactions[0].onComplete(null, false, null);
-        expect(
-          FirebaseDatabase.transactions.length,
-          equals(0)
-        );
+        expect(FirebaseDatabase.transactions.length, equals(0));
       });
     });
 
@@ -335,7 +324,8 @@ class MockTransactionHandler extends TransactionHandler {
   }
 
   @override
-  void onComplete(DatabaseError error, bool committed, DataSnapshot dataSnapshot) {
+  void onComplete(
+      DatabaseError error, bool committed, DataSnapshot dataSnapshot) {
     // Remove all existing transactions.
     FirebaseDatabase.transactions.clear();
   }

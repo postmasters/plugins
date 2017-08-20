@@ -145,7 +145,6 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class DemoTransactionHandler extends TransactionHandler {
-
   @override
   Future<DataSnapshot> doTransaction(DataSnapshot dataSnapshot) {
     if (dataSnapshot != null && dataSnapshot.value != null) {
@@ -165,7 +164,8 @@ class DemoTransactionHandler extends TransactionHandler {
   }
 
   @override
-  void onComplete(DatabaseError error, bool committed, DataSnapshot dataSnapshot) {
+  void onComplete(
+      DatabaseError error, bool committed, DataSnapshot dataSnapshot) {
     // Implement onComplete
     print('transaction complete:');
     print('error : ${error}');
@@ -173,5 +173,4 @@ class DemoTransactionHandler extends TransactionHandler {
     print('snapshot value: ${dataSnapshot.key}');
     print('snapshot value: ${dataSnapshot.value}');
   }
-
 }

@@ -138,19 +138,18 @@ class DatabaseReference extends Query {
     final int transactionKey = getNextTransactionKey();
     FirebaseDatabase._transactions[transactionKey] = transactionHandler;
     return _database._channel.invokeMethod(
-      'DatabaseReference#runTransaction',
-      <String, dynamic>{'path': path, 'transactionKey': transactionKey}
-    ).then((Map<String, dynamic> result) {
+        'DatabaseReference#runTransaction', <String, dynamic>{
+      'path': path,
+      'transactionKey': transactionKey
+    }).then((Map<String, dynamic> result) {
       final dataSnapshot = new DataSnapshot._(result);
       return transactionHandler.doTransaction(dataSnapshot);
     }).then((DataSnapshot dataSnapshot) {
       return _database._channel.invokeMethod(
-        'DatabaseReference#finishDoTransaction',
-        <String, dynamic>{
-          'updatedDataSnapshot': dataSnapshot.value,
-          'transactionKey': transactionKey
-        }
-      );
+          'DatabaseReference#finishDoTransaction', <String, dynamic>{
+        'updatedDataSnapshot': dataSnapshot.value,
+        'transactionKey': transactionKey
+      });
     });
   }
 }
@@ -164,9 +163,8 @@ class ServerValue {
 /// TransactionHandler requires the implementation of functions to handle a
 /// Firebase Database transaction.
 abstract class TransactionHandler {
-
   Future<DataSnapshot> doTransaction(DataSnapshot dataSnapshot);
 
-  void onComplete(DatabaseError error, bool committed, DataSnapshot dataSnapshot);
-
+  void onComplete(
+      DatabaseError error, bool committed, DataSnapshot dataSnapshot);
 }

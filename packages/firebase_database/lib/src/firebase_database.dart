@@ -27,10 +27,12 @@ class FirebaseDatabase {
         _observers[call.arguments['handle']].add(event);
       } else if (call.method == 'TransactionComplete') {
         final DatabaseError databaseError = call.arguments['error'] != null
-            ? new DatabaseError._(call.arguments['error']) : null;
+            ? new DatabaseError._(call.arguments['error'])
+            : null;
         final bool committed = call.arguments['committed'];
         final DataSnapshot dataSnapshot = call.arguments['snapshot'] != null
-            ? new DataSnapshot._(call.arguments['snapshot']) : null;
+            ? new DataSnapshot._(call.arguments['snapshot'])
+            : null;
         _transactions[call.arguments['transactionKey']]
             .onComplete(databaseError, committed, dataSnapshot);
         _transactions.remove(_transactions[call.arguments['transactionKey']]);
