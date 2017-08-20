@@ -18,8 +18,6 @@ class FirebaseDatabase {
   static final Map<int, TransactionHandler> _transactions =
       <int, TransactionHandler>{};
 
-  static Map<int, TransactionHandler> get transactions => _transactions;
-
   FirebaseDatabase._() {
     _channel.setMethodCallHandler((MethodCall call) {
       if (call.method == 'Event') {
@@ -44,6 +42,8 @@ class FirebaseDatabase {
 
   /// Gets the instance of FirebaseDatabase for the default Firebase app.
   static FirebaseDatabase get instance => _instance;
+
+  static Map<int, TransactionHandler> get transactions => _transactions;
 
   /// Gets a DatabaseReference for the root of your Firebase Database.
   DatabaseReference reference() => new DatabaseReference._(this, <String>[]);

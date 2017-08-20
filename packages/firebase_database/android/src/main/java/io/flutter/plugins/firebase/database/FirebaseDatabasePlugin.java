@@ -6,7 +6,6 @@ package io.flutter.plugins.firebase.database;
 
 import android.util.Log;
 import android.util.SparseArray;
-
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
@@ -20,16 +19,14 @@ import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /** FirebaseDatabasePlugin */
 public class FirebaseDatabasePlugin implements MethodCallHandler {
@@ -48,7 +45,8 @@ public class FirebaseDatabasePlugin implements MethodCallHandler {
   private final SparseArray<EventObserver> observers = new SparseArray<>();
   // Array containing transaction tasks. Used to retrieve a existing transaction from different
   // channel invocations.
-  private final SparseArray<TaskCompletionSource<Map<String, Object>>> transactionTasks = new SparseArray<>();
+  private final SparseArray<TaskCompletionSource<Map<String, Object>>> transactionTasks =
+      new SparseArray<>();
 
   public static void registerWith(PluginRegistry.Registrar registrar) {
     final MethodChannel channel =
@@ -307,7 +305,8 @@ public class FirebaseDatabasePlugin implements MethodCallHandler {
         {
           // Tasks are used to allow native execution of doTransaction to wait while Snapshot is
           // processed by logic on the dart side.
-          TaskCompletionSource<Map<String, Object>> updateMutableDataTCS = new TaskCompletionSource<>();
+          TaskCompletionSource<Map<String, Object>> updateMutableDataTCS =
+              new TaskCompletionSource<>();
           final Task<Map<String, Object>> updateMutableDataTCSTask = updateMutableDataTCS.getTask();
           final Map<String, Object> arguments = call.arguments();
 
@@ -317,54 +316,56 @@ public class FirebaseDatabasePlugin implements MethodCallHandler {
           DatabaseReference reference = getReference(arguments);
 
           // Initiate native transaction.
-          reference.runTransaction(new Transaction.Handler() {
-            @Override
-            public Transaction.Result doTransaction(MutableData mutableData) {
-              Map<String, Object> snapshotMap = new HashMap<>();
-              snapshotMap.put("key", mutableData.getKey());
-              snapshotMap.put("value", mutableData.getValue());
+          reference.runTransaction(
+              new Transaction.Handler() {
+                @Override
+                public Transaction.Result doTransaction(MutableData mutableData) {
+                  Map<String, Object> snapshotMap = new HashMap<>();
+                  snapshotMap.put("key", mutableData.getKey());
+                  snapshotMap.put("value", mutableData.getValue());
 
-              // Return snapshot to dart side for update.
-              result.success(snapshotMap);
+                  // Return snapshot to dart side for update.
+                  result.success(snapshotMap);
 
-              try {
-                // Wait for updated snapshot from the dart side.
-                Map<String, Object> updatedSnapshotMap = Tasks.await(updateMutableDataTCSTask);
-                // Set value of MutableData to value returned from the dart side.
-                mutableData.setValue(updatedSnapshotMap.get("updatedDataSnapshot"));
-              } catch (ExecutionException | InterruptedException e) {
-                Log.e(TAG, e.toString());
-              }
-              return Transaction.success(mutableData);
-            }
+                  try {
+                    // Wait for updated snapshot from the dart side.
+                    Map<String, Object> updatedSnapshotMap = Tasks.await(updateMutableDataTCSTask);
+                    // Set value of MutableData to value returned from the dart side.
+                    mutableData.setValue(updatedSnapshotMap.get("updatedDataSnapshot"));
+                  } catch (ExecutionException | InterruptedException e) {
+                    Log.e(TAG, e.toString());
+                  }
+                  return Transaction.success(mutableData);
+                }
 
-            @Override
-            public void onComplete(DatabaseError databaseError, boolean committed, DataSnapshot dataSnapshot) {
-              Map<String, Object> completionMap = new HashMap<>();
-              completionMap.put("transactionKey", getTransactionKey(arguments));
-              if (databaseError != null) {
-                Map<String, Object> errorMap = new HashMap<>();
-                errorMap.put("code", databaseError.getCode());
-                errorMap.put("message", databaseError.getMessage());
-                errorMap.put("details", databaseError.getDetails());
-                completionMap.put("error", errorMap);
-              }
-              completionMap.put("committed", committed);
-              if (dataSnapshot != null) {
-                Map<String, Object> snapshotMap = new HashMap<>();
-                snapshotMap.put("key", dataSnapshot.getKey());
-                snapshotMap.put("value", dataSnapshot.getValue());
-                completionMap.put("snapshot", snapshotMap);
-              }
-              // Invoke transaction complete on the dart side.
-              channel.invokeMethod("TransactionComplete", completionMap);
-            }
-          });
+                @Override
+                public void onComplete(
+                    DatabaseError databaseError, boolean committed, DataSnapshot dataSnapshot) {
+                  Map<String, Object> completionMap = new HashMap<>();
+                  completionMap.put("transactionKey", getTransactionKey(arguments));
+                  if (databaseError != null) {
+                    Map<String, Object> errorMap = new HashMap<>();
+                    errorMap.put("code", databaseError.getCode());
+                    errorMap.put("message", databaseError.getMessage());
+                    errorMap.put("details", databaseError.getDetails());
+                    completionMap.put("error", errorMap);
+                  }
+                  completionMap.put("committed", committed);
+                  if (dataSnapshot != null) {
+                    Map<String, Object> snapshotMap = new HashMap<>();
+                    snapshotMap.put("key", dataSnapshot.getKey());
+                    snapshotMap.put("value", dataSnapshot.getValue());
+                    completionMap.put("snapshot", snapshotMap);
+                  }
+                  // Invoke transaction complete on the dart side.
+                  channel.invokeMethod("TransactionComplete", completionMap);
+                }
+              });
           break;
         }
 
-      // This case returns the updated snapshot from the dart side to the native side. The
-      // doTransaction method completes after this method is called.
+        // This case returns the updated snapshot from the dart side to the native side. The
+        // doTransaction method completes after this method is called.
       case "DatabaseReference#finishDoTransaction":
         {
           Map<String, Object> arguments = call.arguments();

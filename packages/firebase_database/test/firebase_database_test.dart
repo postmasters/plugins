@@ -320,7 +320,7 @@ class MockTransactionHandler extends TransactionHandler {
   @override
   Future<DataSnapshot> doTransaction(DataSnapshot dataSnapshot) {
     // Return same snapshot that is passed in.
-    return new Future(() => dataSnapshot);
+    return new Future<DataSnapshot>(() => dataSnapshot);
   }
 
   @override

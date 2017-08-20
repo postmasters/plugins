@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           new RaisedButton(
-            child: new Text('UPDATE IN TRANSACTION'),
+            child: const Text('UPDATE IN TRANSACTION'),
             onPressed: () {
               _updateInTransaction();
             },
@@ -151,7 +151,7 @@ class DemoTransactionHandler extends TransactionHandler {
       // Update snapshot here.
       print('snapshot received by doTransaction: ${dataSnapshot.value}');
       final Map<String, dynamic> snapshots = dataSnapshot.value;
-      snapshots.forEach((key, Map<String, String> value) {
+      snapshots.forEach((String key, Map<String, String> value) {
         if (value['Hello'].endsWith(' updated')) {
           value['Hello'] = value['Hello'].replaceAll(' updated', '');
         } else {
@@ -160,7 +160,7 @@ class DemoTransactionHandler extends TransactionHandler {
       });
       print('snapshot after doTransaction: ${dataSnapshot.value}');
     }
-    return new Future(() => dataSnapshot);
+    return new Future<DataSnapshot>(() => dataSnapshot);
   }
 
   @override
@@ -168,8 +168,8 @@ class DemoTransactionHandler extends TransactionHandler {
       DatabaseError error, bool committed, DataSnapshot dataSnapshot) {
     // Implement onComplete
     print('transaction complete:');
-    print('error : ${error}');
-    print('committed: ${committed}');
+    print('error : $error');
+    print('committed: $committed');
     print('snapshot value: ${dataSnapshot.key}');
     print('snapshot value: ${dataSnapshot.value}');
   }

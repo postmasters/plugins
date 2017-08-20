@@ -142,7 +142,7 @@ class DatabaseReference extends Query {
       'path': path,
       'transactionKey': transactionKey
     }).then((Map<String, dynamic> result) {
-      final dataSnapshot = new DataSnapshot._(result);
+      final DataSnapshot dataSnapshot = new DataSnapshot._(result);
       return transactionHandler.doTransaction(dataSnapshot);
     }).then((DataSnapshot dataSnapshot) {
       return _database._channel.invokeMethod(
