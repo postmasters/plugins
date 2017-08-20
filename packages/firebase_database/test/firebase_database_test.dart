@@ -28,6 +28,13 @@ void main() {
             return true;
           case 'FirebaseDatabase#setPersistenceCacheSizeBytes':
             return true;
+          case 'DatabaseReference#runTransaction':
+            return <String, dynamic> {
+              'key': 'notRealKey',
+              'value': <String, dynamic> {
+                'fakeKey': 'fakeValue'
+              }
+            };
           default:
             return null;
         }
@@ -140,6 +147,38 @@ void main() {
               <String, dynamic>{'path': 'foo', 'priority': priority},
             ),
           ]),
+        );
+      });
+
+      test('runTransaction', () async {
+        await database.reference().child('foo')
+            .runTransaction(new MockTransactionHandler());
+        expect(
+          log,
+          equals(<MethodCall>[
+            new MethodCall(
+              'DatabaseReference#runTransaction',
+              <String, dynamic>{'path': 'foo', 'transactionKey': 0}
+            ),
+            new MethodCall(
+              'DatabaseReference#finishDoTransaction',
+              <String, dynamic>{
+                'updatedDataSnapshot': <String, dynamic> {
+                  'fakeKey': 'fakeValue'
+                },
+                'transactionKey': 0
+              }
+            )
+          ])
+        );
+        expect(
+          FirebaseDatabase.transactions.length,
+          equals(1)
+        );
+        FirebaseDatabase.transactions[0].onComplete(null, false, null);
+        expect(
+          FirebaseDatabase.transactions.length,
+          equals(0)
         );
       });
     });
@@ -285,5 +324,19 @@ class AsyncQueue<T> {
     } else {
       return _completers[index] = new Completer<T>();
     }
+  }
+}
+
+class MockTransactionHandler extends TransactionHandler {
+  @override
+  Future<DataSnapshot> doTransaction(DataSnapshot dataSnapshot) {
+    // Return same snapshot that is passed in.
+    return new Future(() => dataSnapshot);
+  }
+
+  @override
+  void onComplete(DatabaseError error, bool committed, DataSnapshot dataSnapshot) {
+    // Remove all existing transactions.
+    FirebaseDatabase.transactions.clear();
   }
 }

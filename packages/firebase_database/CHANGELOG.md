@@ -1,3 +1,7 @@
+## 0.0.15
+
+* Add RTDB transaction support.
+
 ## 0.0.14
 
 * Fix FirebaseSortedList to show data changes.

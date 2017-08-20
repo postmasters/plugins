@@ -15,11 +15,25 @@ class FirebaseDatabase {
   static final Map<int, StreamController<Event>> _observers =
       <int, StreamController<Event>>{};
 
+  static final Map<int, TransactionHandler> _transactions =
+      <int, TransactionHandler>{};
+
+  static Map<int, TransactionHandler> get transactions => _transactions;
+
   FirebaseDatabase._() {
     _channel.setMethodCallHandler((MethodCall call) {
       if (call.method == 'Event') {
         final Event event = new Event._(call.arguments);
         _observers[call.arguments['handle']].add(event);
+      } else if (call.method == 'TransactionComplete') {
+        final DatabaseError databaseError = call.arguments['error'] != null
+            ? new DatabaseError._(call.arguments['error']) : null;
+        final bool committed = call.arguments['committed'];
+        final DataSnapshot dataSnapshot = call.arguments['snapshot'] != null
+            ? new DataSnapshot._(call.arguments['snapshot']) : null;
+        _transactions[call.arguments['transactionKey']]
+            .onComplete(databaseError, committed, dataSnapshot);
+        _transactions.remove(_transactions[call.arguments['transactionKey']]);
       }
     });
   }
