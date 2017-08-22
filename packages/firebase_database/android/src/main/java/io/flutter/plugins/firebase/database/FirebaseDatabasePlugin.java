@@ -333,7 +333,9 @@ public class FirebaseDatabasePlugin implements MethodCallHandler {
                     // Set value of MutableData to value returned from the dart side.
                     mutableData.setValue(updatedSnapshotMap.get("updatedDataSnapshot"));
                   } catch (ExecutionException | InterruptedException e) {
+                    Log.e(TAG, "Unable to commit Snapshot update. Transaction should be retried.");
                     Log.e(TAG, e.toString());
+                    return Transaction.abort();
                   }
                   return Transaction.success(mutableData);
                 }
