@@ -86,6 +86,14 @@ class ScanResult {
 
   /// Received signal strength indicator, in decibels.
   final int rssi;
+
+  List<int> getServiceData(BluetoothUuid service) {
+    List<int> found = advertisementData.serviceData
+        .where((e) => service == BluetoothUuid.fromString(e.key))
+        .map((e) => e.value)
+        .toList();
+    return found.length > 0 ? found.first : null;
+  }
 }
 
 /// Operating mode of a scan.
