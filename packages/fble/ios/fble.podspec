@@ -18,7 +18,7 @@ Flutter plugin to work with BLE stacks in Android and iOS.
   s.dependency '!ProtoCompiler'
   s.framework = 'CoreBluetooth'
 
-  protoc = '../example/ios/Pods/!ProtoCompiler/protoc'
+  protoc = ENV['PWD'] + '/Pods/!ProtoCompiler/protoc'
   objc_out = 'gen'
   proto_in = '../protos'
   s.prepare_command = <<-CMD
